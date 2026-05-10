@@ -56,4 +56,17 @@ async def main():
     for message in orchestrator_output.new_message:
         print(f" - Translationstep: {message.content}")
         
-        
+#implementing decentralized control
+from agents import Agent, Runner
+
+technical_support_agent = Agent(
+    name="Technical Support Agent",
+    instructions=(
+        "You porvide expert assistance with resolving technical issues, system outages, or product troubleshooting.",
+        handoffs=[technical_support_agent, sales_assistant_agent, order_managment_agent],
+    )
+    await Runner.run(
+        triage_agent,
+        input("Could you please provide an update on the delivery timeline for our recent purchase?")
+    )
+)
