@@ -56,6 +56,7 @@ async def main():
     for message in orchestrator_output.new_message:
         print(f" - Translationstep: {message.content}")
         
+        
 #implementing decentralized control
 from agents import Agent, Runner
 
@@ -63,10 +64,38 @@ technical_support_agent = Agent(
     name="Technical Support Agent",
     instructions=(
         "You porvide expert assistance with resolving technical issues, system outages, or product troubleshooting.",
-        handoffs=[technical_support_agent, sales_assistant_agent, order_managment_agent],
-    )
-    await Runner.run(
-        triage_agent,
-        input("Could you please provide an update on the delivery timeline for our recent purchase?")
-    )
+        ),
+    tools=[search_knowledge_base]
 )
+sales_assistant_agent = Agent(
+     name="Sales Assistant Agent",
+     instructions=(
+         "You help enterprise clients browse the product catalog, recommend suitable solutions, and facilitate purchase transactions."
+     ),
+     tools=[initiate_purchsase_order]
+ )   
+
+order_management_agent = Agent(
+    name="Order Management Agent",
+    instructions=(
+        "you assist clients with inquiries regarding order tracking, delivery schedules, and processing returns or refunds."
+    ),
+    tools=[track_order_status, initiate_refund_process]
+)
+    
+triage_agent = Agent(
+    name="Triage Agent",
+    instructions="you act as the first point of contact, assessing customer queries and directing them promptly to the correct specialized agent.",
+    handoffs=[technical_support_agent, sales_assistant_agent,order_management_agent]
+)    
+import asyncio
+
+async def run_triage():
+    return await Runner.run(
+        triage_agent,
+        input("could you please provide an update on the delivery timeline for our recent purchase")
+    )
+
+if __name__ == "__main__":
+    asyncio.run(run_triage())
+
